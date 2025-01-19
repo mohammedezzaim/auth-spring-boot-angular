@@ -1,6 +1,7 @@
 package org.example.back.security.config;
 
 import lombok.RequiredArgsConstructor;
+import org.example.back.security.filters.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -23,9 +24,9 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
-    //private final JwtFilter jwtAuthFilter;
+    private final JwtFilter jwtAuthFilter;
 
-    //private final AuthenticationProvider authenticationProvider;
+    private final AuthenticationProvider authenticationProvider;
 
 
     @Bean
@@ -50,9 +51,9 @@ public class SecurityConfig {
                                 .anyRequest()
                                 .authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
-                //.authenticationProvider(authenticationProvider)
-                //.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -22,10 +22,8 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
-@Table(name = "user")
+@Table(name = "userDetailsImpl")
 @EntityListeners(AuditingEntityListener.class)
 public class UserDetailsImpl implements UserDetails, Principal {
     @Id
@@ -49,14 +47,31 @@ public class UserDetailsImpl implements UserDetails, Principal {
     private LocalDateTime lastModifiedDate;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private List<Role> roles;
+    private List<GrantedAuthorityImpl> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles
                 .stream()
-                .map(r->new SimpleGrantedAuthority(r.getName()))
+                .map(r->new GrantedAuthorityImpl(r.getRole()))
                 .collect(Collectors.toList());
+    }
+
+    public UserDetailsImpl() {
+    }
+
+    public UserDetailsImpl(Integer id, String firstname, String lastname, LocalDate dateOfBirth, String email, String password, boolean accountLocked, boolean enabled, LocalDateTime createdDate, LocalDateTime lastModifiedDate, List<GrantedAuthorityImpl> grantedAuthorityImpls) {
+        this.id = id;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.dateOfBirth = dateOfBirth;
+        this.email = email;
+        this.password = password;
+        this.accountLocked = accountLocked;
+        this.enabled = enabled;
+        this.createdDate = createdDate;
+        this.lastModifiedDate = lastModifiedDate;
+        this.roles = grantedAuthorityImpls;
     }
 
     @Override
@@ -97,4 +112,5 @@ public class UserDetailsImpl implements UserDetails, Principal {
     public String fullName() {
         return firstname + " " + lastname;
     }
+
 }

@@ -11,9 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
+@Table(name = "verificationCode")
 public class VerificationCode {
     @Id
     @GeneratedValue
@@ -27,4 +26,16 @@ public class VerificationCode {
     @ManyToOne
     @JoinColumn(name = "userId",nullable = false)
     private UserDetailsImpl user;
+
+    public VerificationCode() {
+    }
+
+    public VerificationCode(Long id, String code, LocalDateTime createdAt, LocalDateTime expiresAt, LocalDateTime validatedAt, UserDetailsImpl user) {
+        this.id = id;
+        this.code = code;
+        this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
+        this.validatedAt = validatedAt;
+        this.user = user;
+    }
 }

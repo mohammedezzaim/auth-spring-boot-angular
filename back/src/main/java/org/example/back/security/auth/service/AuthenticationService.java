@@ -1,5 +1,7 @@
 package org.example.back.security.auth.service;
 
+
+
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.example.back.security.auth.model.AuthenticationRequest;
@@ -7,8 +9,8 @@ import org.example.back.security.auth.model.AuthenticationResponse;
 import org.example.back.security.auth.model.RegistrationRequest;
 import org.example.back.security.bean.UserDetailsImpl;
 import org.example.back.security.bean.VerificationCode;
-import org.example.back.security.dao.RoleDao;
-import org.example.back.security.dao.UserDetailsDao;
+import org.example.back.security.dao.GrantedAuthorityDao;
+import org.example.back.security.dao.UserDetailsImplDao;
 import org.example.back.security.dao.VerificationCodeDao;
 import org.example.back.security.email.EmailService;
 import org.example.back.security.email.EmailTemplateName;
@@ -34,9 +36,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final RoleDao roleDao;
+    private final GrantedAuthorityDao grantedAuthorityDao;
     private final PasswordEncoder passwordEncoder;
-    private final UserDetailsDao userDetailsDao;
+    private final UserDetailsImplDao userDetailsImplDao;
     private final VerificationCodeDao verificationCodeDao;
     private final EmailService emailservice;
     private final AuthenticationManager authenticationManager;
@@ -47,14 +49,14 @@ public class AuthenticationService {
 
     public void register(RegistrationRequest request) throws MessagingException {
 
-        if (userDetailsDao.existsByEmail(request.getEmail())) {
+        if (userDetailsImplDao.existsByEmail(request.getEmail())) {
             throw new EmailAlreadyExistsException("The email " + request.getEmail() + " is already in use.");
         }
 
-        var userRole = roleDao.findByName("USER")
-                .orElseThrow(()-> new IllegalArgumentException("Role USER was not initialized"));
+        var userRole = grantedAuthorityDao.findByRole("USER")
+                .orElseThrow(() -> new IllegalArgumentException("Role USER was not initialized"));
 
-        var user = UserDetailsImpl.builder()
+        UserDetailsImpl user = UserDetailsImpl.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .email(request.getEmail())
@@ -64,11 +66,39 @@ public class AuthenticationService {
                 .roles(List.of(userRole))
                 .build();
 
-
-
-        userDetailsDao.save(user);
+        userDetailsImplDao.save(user);
         sendValidationEmail(user);
     }
+
+
+    public void registerForAdmin(RegistrationRequest request) throws MessagingException {
+
+        if (userDetailsImplDao.existsByEmail(request.getEmail())) {
+            throw new EmailAlreadyExistsException("The email " + request.getEmail() + " is already in use.");
+        }
+
+        var userRole = grantedAuthorityDao.findByRole("USER")
+                .orElseThrow(() -> new IllegalArgumentException("Role USER was not initialized"));
+
+        var adminRole = grantedAuthorityDao.findByRole("ADMIN")
+                .orElseThrow(() -> new IllegalArgumentException("Role ADMIN was not initialized"));
+
+        UserDetailsImpl user = UserDetailsImpl.builder()
+                .firstname(request.getFirstname())
+                .lastname(request.getLastname())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .accountLocked(false)
+                .enabled(false)
+                .roles(List.of(userRole,adminRole))
+                .build();
+
+
+
+        userDetailsImplDao.save(user);
+        sendValidationEmail(user);
+    }
+
 
     private void sendValidationEmail(UserDetailsImpl user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
@@ -134,11 +164,11 @@ public class AuthenticationService {
             throw new RuntimeException("Activation tok" +
                     "en has expired. A new token has benn sent to the same mail address");
         }
-        var user = userDetailsDao.findById(savedToken.getId())
+        UserDetailsImpl user = userDetailsImplDao.findById(savedToken.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
         user.setEnabled(true);
-        userDetailsDao.save(user);
+        userDetailsImplDao.save(user);
 
         savedToken.setValidatedAt(LocalDateTime.now());
         verificationCodeDao.save(savedToken);

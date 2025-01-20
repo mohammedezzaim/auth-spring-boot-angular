@@ -28,9 +28,6 @@ public class EmailService {
 
     private final SpringTemplateEngine templateEngine;
 
-    @Value("${spring.mail.username}")
-    String username;
-
     @Async
     public void sendEmail(
             String to,
@@ -64,7 +61,7 @@ public class EmailService {
         Context context = new Context();
         context.setVariables(properties);
 
-        helper.setFrom(username);
+        helper.setFrom("mohammedtesjale@gmail.com");
         helper.setTo(to);
         helper.setSubject(subject);
 

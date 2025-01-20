@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * @author Ezzaim Mohammed
  **/
-public interface UserDetailsDao extends JpaRepository<UserDetailsImpl, Long> {
+public interface UserDetailsImplDao extends JpaRepository<UserDetailsImpl, Long> {
     Optional<UserDetailsImpl> findByEmail(String email);
     boolean existsUserByEmail(String email);
     boolean existsByEmail(String email);

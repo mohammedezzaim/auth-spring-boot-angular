@@ -2,18 +2,16 @@ package org.example.back.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import org.example.back.security.bean.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +23,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private long jwtExpiration;
+    private long jwtExpiration = 12*60*60*1000;
 
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
@@ -33,6 +31,7 @@ public class JwtService {
     public String extractUsername(String jwt) {
         return extractClaim(jwt, Claims::getSubject);
     }
+
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
@@ -46,14 +45,14 @@ public class JwtService {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
     }
+
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(),userDetails);
-    }
+        UserDetailsImpl userDetailsImpl = (UserDetailsImpl) userDetails;
 
-    public String generateToken(Map<String, Object> claims,UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("fullName",userDetailsImpl.fullName());
 
         return buildToken(claims, userDetails, jwtExpiration);
     }
@@ -73,9 +72,9 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+ 13*60*1000))
+                .setExpiration(new Date(System.currentTimeMillis()+ jwtExpiration))
                 .claim("authorities", authorities)
-                .signWith(getSignInKey())
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 

@@ -31,19 +31,13 @@ public class EmailService {
     @Async
     public void sendEmail(
             String to,
-            String username,
+            String fullName,
             EmailTemplateName emailTemplate,
             String confirmationUrl,
             String activationCode,
             String subject
     ) throws MessagingException {
-        String templateName;
-        if (emailTemplate == null) {
-            templateName = "confirm-email";
-        }
-        else {
-            templateName = emailTemplate.name();
-        }
+        String templateName = emailTemplate.name();
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
 
@@ -54,14 +48,13 @@ public class EmailService {
         );
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put("username",username);
+        properties.put("username",fullName);
         properties.put("confirmationUrl",confirmationUrl);
         properties.put("activation_code",activationCode);
 
         Context context = new Context();
         context.setVariables(properties);
 
-        helper.setFrom("mohammedtesjale@gmail.com");
         helper.setTo(to);
         helper.setSubject(subject);
 

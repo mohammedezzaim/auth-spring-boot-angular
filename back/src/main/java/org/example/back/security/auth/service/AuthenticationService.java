@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.back.security.auth.model.AuthenticationRequest;
 import org.example.back.security.auth.model.AuthenticationResponse;
 import org.example.back.security.auth.model.RegistrationRequest;
+import org.example.back.security.bean.GrantedAuthorityImpl;
 import org.example.back.security.bean.UserDetailsImpl;
 import org.example.back.security.bean.VerificationCode;
 import org.example.back.security.dao.GrantedAuthorityImplDao;
@@ -144,12 +145,9 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-        System.out.println(auth.getPrincipal());
-        var claims = new HashMap<String,Object>();
         UserDetailsImpl user = (UserDetailsImpl) auth.getPrincipal();
-        claims.put("fullName",user.fullName());
 
-        var jwtToken = jwtService.generateToken(claims,user);
+        var jwtToken = jwtService.generateToken(user);
 
         return AuthenticationResponse.builder().token(jwtToken).build();
     }

@@ -8,6 +8,6 @@ import java.util.Optional;
 /**
  * @author Ezzaim Mohammed
  **/
-public interface GrantedAuthorityDao extends JpaRepository<GrantedAuthorityImpl, Integer> {
+public interface GrantedAuthorityImplDao extends JpaRepository<GrantedAuthorityImpl, Integer> {
     Optional<GrantedAuthorityImpl> findByRole(String role);
 }

@@ -1,7 +1,7 @@
 package org.example.back;
 
 import org.example.back.security.bean.*;
-import org.example.back.security.dao.GrantedAuthorityDao;
+import org.example.back.security.dao.GrantedAuthorityImplDao;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,14 +21,14 @@ public class BackApplication {
     }
 
     @Bean
-    public CommandLineRunner runner(GrantedAuthorityDao grantedAuthorityDao) {
+    public CommandLineRunner runner(GrantedAuthorityImplDao grantedAuthorityImplDao) {
         return args -> {
-            if (grantedAuthorityDao.findByRole("USER").isEmpty()){
+            if (grantedAuthorityImplDao.findByRole("USER").isEmpty()){
                 GrantedAuthorityImpl grantedAuthorityImpl = GrantedAuthorityImpl.builder().role("USER").build();
-                grantedAuthorityDao.save(grantedAuthorityImpl);
+                grantedAuthorityImplDao.save(grantedAuthorityImpl);
             }
-            if (grantedAuthorityDao.findByRole("ADMIN").isEmpty()){
-                grantedAuthorityDao.save(GrantedAuthorityImpl.builder().role("ADMIN").build());
+            if (grantedAuthorityImplDao.findByRole("ADMIN").isEmpty()){
+                grantedAuthorityImplDao.save(GrantedAuthorityImpl.builder().role("ADMIN").build());
             }
         };
     }

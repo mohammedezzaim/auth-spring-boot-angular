@@ -9,7 +9,7 @@ import org.example.back.security.auth.model.AuthenticationResponse;
 import org.example.back.security.auth.model.RegistrationRequest;
 import org.example.back.security.bean.UserDetailsImpl;
 import org.example.back.security.bean.VerificationCode;
-import org.example.back.security.dao.GrantedAuthorityDao;
+import org.example.back.security.dao.GrantedAuthorityImplDao;
 import org.example.back.security.dao.UserDetailsImplDao;
 import org.example.back.security.dao.VerificationCodeDao;
 import org.example.back.security.email.EmailService;
@@ -36,7 +36,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final GrantedAuthorityDao grantedAuthorityDao;
+    private final GrantedAuthorityImplDao grantedAuthorityImplDao;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsImplDao userDetailsImplDao;
     private final VerificationCodeDao verificationCodeDao;
@@ -53,7 +53,7 @@ public class AuthenticationService {
             throw new EmailAlreadyExistsException("The email " + request.getEmail() + " is already in use.");
         }
 
-        var userRole = grantedAuthorityDao.findByRole("USER")
+        var userRole = grantedAuthorityImplDao.findByRole("USER")
                 .orElseThrow(() -> new IllegalArgumentException("Role USER was not initialized"));
 
         UserDetailsImpl user = UserDetailsImpl.builder()
@@ -77,10 +77,10 @@ public class AuthenticationService {
             throw new EmailAlreadyExistsException("The email " + request.getEmail() + " is already in use.");
         }
 
-        var userRole = grantedAuthorityDao.findByRole("USER")
+        var userRole = grantedAuthorityImplDao.findByRole("USER")
                 .orElseThrow(() -> new IllegalArgumentException("Role USER was not initialized"));
 
-        var adminRole = grantedAuthorityDao.findByRole("ADMIN")
+        var adminRole = grantedAuthorityImplDao.findByRole("ADMIN")
                 .orElseThrow(() -> new IllegalArgumentException("Role ADMIN was not initialized"));
 
         UserDetailsImpl user = UserDetailsImpl.builder()

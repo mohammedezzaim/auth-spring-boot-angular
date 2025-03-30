@@ -17,6 +17,7 @@ import org.example.back.security.email.EmailService;
 import org.example.back.security.email.EmailTemplateName;
 import org.example.back.security.handler.EmailAlreadyExistsException;
 import org.example.back.security.jwt.JwtService;
+import org.example.back.security.role.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,7 +55,7 @@ public class AuthenticationService {
             throw new EmailAlreadyExistsException("The email " + request.getEmail() + " is already in use.");
         }
 
-        var userRole = grantedAuthorityImplDao.findByRole("USER")
+        var userRole = grantedAuthorityImplDao.findByRole(Role.USER.name())
                 .orElseThrow(() -> new IllegalArgumentException("Role USER was not initialized"));
 
         UserDetailsImpl user = UserDetailsImpl.builder()
@@ -78,10 +79,10 @@ public class AuthenticationService {
             throw new EmailAlreadyExistsException("The email " + request.getEmail() + " is already in use.");
         }
 
-        var userRole = grantedAuthorityImplDao.findByRole("USER")
+        var userRole = grantedAuthorityImplDao.findByRole(Role.USER.name())
                 .orElseThrow(() -> new IllegalArgumentException("Role USER was not initialized"));
 
-        var adminRole = grantedAuthorityImplDao.findByRole("ADMIN")
+        var adminRole = grantedAuthorityImplDao.findByRole(Role.ADMIN.name())
                 .orElseThrow(() -> new IllegalArgumentException("Role ADMIN was not initialized"));
 
         UserDetailsImpl user = UserDetailsImpl.builder()
